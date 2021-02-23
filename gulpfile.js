@@ -91,7 +91,7 @@ function images() {
 		.pipe(dest(path.build.img))
 		.pipe(browsersync.stream())
 }
-
+// comment
 function js(){
 	return src(path.src.js)
 		.pipe(fileinclude())
