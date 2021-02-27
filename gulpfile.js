@@ -1,4 +1,4 @@
-const fileinclude = require('gulp-file-include');
+
 
 let project_folder = "dist";
 let source_folder = "#src";
@@ -36,13 +36,24 @@ let { src, dest } = require('gulp'),
 	scss = require("gulp-sass"),
 	ttf2woff = require("gulp-ttf2woff"),
 	ttf2woff2 = require("gulp-ttf2woff2"),
-   fonter = require("gulp-fonter"),
+	fonter = require("gulp-fonter"),
 	imagemin = require("gulp-imagemin"),
 	webp = require("gulp-webp"),
 	webphtml = require("gulp-webp-html"),
 	webpcss = require("gulp-webp-css"),
-	svgSprite = require("gulp-svg-sprite")
+	svgSprite = require("gulp-svg-sprite"),
+	clean_css = require("gulp-clean-css"),
+	fileinclude = require('gulp-file-include'),
+	autoprefixer = require('gulp-autoprefixer'),
+	group_media = require('gulp-group-css-media-queries'),
+	rename = require("gulp-rename");
 
+function watchFiles(params) {
+	gulp.watch([path.watch.html], html);
+	gulp.watch([path.watch.css], css);
+	gulp.watch([path.watch.js], js);
+	gulp.watch([path.watch.img], images);
+}
 
 function fonts(params) {
 	src(path.src.fonts)
@@ -91,20 +102,15 @@ function images() {
 		.pipe(dest(path.build.img))
 		.pipe(browsersync.stream())
 }
-// comment
-function js(){
+
+
+function js() {
 	return src(path.src.js)
 		.pipe(fileinclude())
 		.pipe(dest(path.build.js))
 		.pipe(browsersync.stream())
 }
 
-function watchFiles(params) {
-	gulp.watch([path.watch.html], html);
-	gulp.watch([path.watch.css], css);
-	gulp.watch([path.watch.js], js);
-	gulp.watch([path.watch.img], images);
-}
 
 function clean(params) {
 	return del(path.clean)
@@ -114,10 +120,26 @@ function css() {
 	return src(path.src.css)
 		.pipe(
 			scss({
-				outputStyle: "expanded"
+				outputStyle: 'expanded'
+			})
+		)
+		.pipe(
+			group_media()
+		)
+		.pipe(
+			autoprefixer({
+				overrideBrowserlist:["last 5 versions"],
+				cascade: true
 			})
 		)
 		.pipe(webpcss())
+		.pipe(dest(path.build.css))
+		.pipe(clean_css())
+		.pipe(
+			rename({
+				extname: ".min.css"
+			})
+		)
 		.pipe(dest(path.build.css))
 		.pipe(browsersync.stream())
 }
@@ -143,7 +165,7 @@ function fontsStyle(params) {
 
 function cb() {
 
- }
+}
 
 
 gulp.task('svgSprite', function () {
@@ -166,7 +188,7 @@ gulp.task('otf2ttf', function () {
 		.pipe(dest(source_folder + '/fonts/'));
 })
 
-let build = gulp.series(clean, gulp.parallel(css,js, html, fonts, images), fontsStyle);
+let build = gulp.series(clean, gulp.parallel(css, js, html, fonts, images), fontsStyle);
 let watch = gulp.parallel(build, watchFiles, browserSync);
 
 
