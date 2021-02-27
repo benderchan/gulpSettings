@@ -1,5 +1,3 @@
-//bsdghasdgasddghsfsdf
-let blabla = 100111
 
 let project_folder = "dist";
 let source_folder = "#src";
