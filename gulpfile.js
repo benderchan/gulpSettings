@@ -1,4 +1,4 @@
-111
+
 let project_folder = "dist";
 let source_folder = "#src";
 
@@ -15,7 +15,7 @@ let path = {
 	src: {
 		html: [source_folder + "/*.html", "!" + source_folder + "/_*.html"],
 		css: source_folder + "/scss/style.scss",
-		js: source_folder + "/js/script.js",
+		js: source_folder + "/js/main.js",
 		img: source_folder + "/img/**/*.{jpg,png,svg,gif,ico,webp}",
 		fonts: source_folder + "/fonts/*.ttf",
 	},
@@ -45,7 +45,8 @@ let { src, dest } = require('gulp'),
 	fileinclude = require('gulp-file-include'),
 	autoprefixer = require('gulp-autoprefixer'),
 	group_media = require('gulp-group-css-media-queries'),
-	rename = require("gulp-rename");
+	rename = require("gulp-rename"),
+	uglify = require("gulp-uglify-es").default;
 
 function watchFiles(params) {
 	gulp.watch([path.watch.html], html);
@@ -106,6 +107,15 @@ function images() {
 function js() {
 	return src(path.src.js)
 		.pipe(fileinclude())
+		.pipe(dest(path.build.js))
+		.pipe(
+			uglify()
+		)
+		.pipe(
+			rename({
+				extname: ".min.js"
+			})
+			)
 		.pipe(dest(path.build.js))
 		.pipe(browsersync.stream())
 }
